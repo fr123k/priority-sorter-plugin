@@ -14,13 +14,17 @@ test: clean ## package priority sorter plugin
 test-only: clean ## package priority sorter plugin
 	$(DOCKER_COMMAND) mvn -Djava.util.logging.config.file=./src/test/resources/logging.properties -Dtest=$(TEST_NAME) -Dmaven.spotbugs.skip=true test ${MAVEN_ARGS}
 
-package: clean ## package priority sorter plugin
+fast-package: clean ## package priority sorter plugin
 	$(DOCKER_COMMAND) mvn -P quick-build -Dmaven.spotbugs.skip=true -Dmaven.test.skip=true package ${MAVEN_ARGS}
+	cat target/classes/META-INF/annotations/hudson.Extension.txt
+
+package: clean ## package priority sorter plugin
+	$(DOCKER_COMMAND) mvn package ${MAVEN_ARGS}
 	cat target/classes/META-INF/annotations/hudson.Extension.txt
 
 clean:
 	# delete all target foldes except jenkins-for-test reduce test time by 80 seconds
-	@bash -c $$'cd target; shopt -s extglob\nrm -rf !("jenkins-for-test"); cd ..'
+	$(DOCKER_COMMAND) find /usr/src/priority-sorter/target/ -mindepth 1 -maxdepth 1 -type d -not -name 'jenkins-for-test' -exec rm -rfv '{}' \; || true
 
 spotbugs: ## package priority sorter plugin
 	$(DOCKER_COMMAND) mvn -Dmaven.test.skip=true install spotbugs:check ${MAVEN_ARGS}
