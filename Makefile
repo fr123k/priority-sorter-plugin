@@ -25,6 +25,7 @@ package: clean ## package priority sorter plugin
 clean:
 	# delete all target foldes except jenkins-for-test reduce test time by 80 seconds
 	$(DOCKER_COMMAND) find /usr/src/priority-sorter/target/ -mindepth 1 -maxdepth 1 -type d -not -name 'jenkins-for-test' -exec rm -rfv '{}' \; || true
+	$(DOCKER_COMMAND) find /usr/src/priority-sorter/target/ -maxdepth 1 -type f -not -name 'jenkins-for-test' -exec rm -rfv '{}' \; || true
 
 spotbugs: ## package priority sorter plugin
 	$(DOCKER_COMMAND) mvn -Dmaven.test.skip=true install spotbugs:check ${MAVEN_ARGS}

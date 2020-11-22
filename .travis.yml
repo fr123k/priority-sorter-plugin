@@ -17,9 +17,11 @@ deploy:
   provider: releases
   api_key:
     secure: rsBxmP2RNHygSj+u8173j+OHQ1oORmv6KmyJzcB76NO6ZkdMM0+Q4h2PySAkl73iyyVWVzrhUr+Kc5wyDVIgxLa7GswJ3v2FZSyyoZksiGGwT7Req//urHgiWfQB8ZEDASTEWgCdzo/lUH7aQ5xxblbogGr3bvjdux+fTQBUzcUggNIi+vPLr0datNx16EyQffPP8ToFZGvsGW2kMqllV6+mKnMuruvLc+6nkQJv/WyhTSx6Ca3XJegB27poUzsbuhYdemAkFm+4iKVzCsjj6GUouS9BWboxI1d3czR7N6mhOjOV4017+6aXeTzr6NWpb0VYbyzax/C6KFATn0N1YP4lnMmjcuYSaNRyG+uPdRxEO7BTcWANRjJsyNEup1/Mg/KChP57k9WcBLlOQa53yKZPgjlnO8um/w+TceTZFSBg2f+1T7gTForU1UMn2zC5oVt2iCTXAA7b4E6+jSja/3Oo04zo8ZzWQo61zrzxiAEpH3rqS4lo5DIYTXZCuukslchNYovn8U73t0fv4WxXOKWjy0UGPnh29Vz7SeCDUSFvM0eSoxbq/AgYWmw6nd0Q6Rik7Nw6g88mGCyfl98NAigmvECVOAZuGzufY4eVoKlYOwC1mtcYgedWQ/XnCF0BZuZEm4zOT0fWbDY5W1MAnzS9hrHymTEie8sFnsGQ+HE=
-  file_glob: true
-  file: target/*.hpi
+  file:
+    - target/PrioritySorter.hpi
+    - target/PrioritySorter_SHA512SUMS
   skip_cleanup: true
+  draft: true
   on:
     repo: fr123k/priority-sorter-plugin
     branch: fr/travis_integration
