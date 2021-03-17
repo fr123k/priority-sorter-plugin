@@ -39,35 +39,35 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class PrioritySorterJobColumn extends ListViewColumn {
 
-    @DataBoundConstructor
-    public PrioritySorterJobColumn() {
-    }
+	@DataBoundConstructor
+	public PrioritySorterJobColumn() {
+	}
 
-    public String getPriority(final Job<?, ?> job) {
-        ItemInfo itemInfo = QueueItemCache.get().getItem(job.getName());
-        if(itemInfo == null) {
-            return "Pending"; // You need to run a Job
-        }
-        return Integer.toString(itemInfo.getPriority());
-    }
+	public String getPriority(final Job<?, ?> job) {
+		ItemInfo itemInfo = QueueItemCache.get().getItem(job.getName());
+		if(itemInfo == null) {
+			return "Pending"; // You need to run a Job
+		}
+		return Integer.toString(itemInfo.getPriority());
+	}
 
-    @Extension
-    public static class DescriptorImpl extends ListViewColumnDescriptor {
+	@Extension
+	public static class DescriptorImpl extends ListViewColumnDescriptor {
 
-        @Override
-        public String getDisplayName() {
-            return "Priority Value";
-        }
+		@Override
+		public String getDisplayName() {
+			return "Priority Value";
+		}
 
-        @Override
-        public boolean shownByDefault() {
-            return false;
-        }
+		@Override
+		public boolean shownByDefault() {
+			return false;
+		}
 
-        @Initializer(before = InitMilestone.PLUGINS_STARTED)
-        public static void addAliases() {
-            // moved in 3.0 everything in hudson.* is deprecated
-            Items.XSTREAM2.addCompatibilityAlias("hudson.queueSorter.PrioritySorterJobColumn", PrioritySorterJobColumn.class);
-        }
-    }
+		@Initializer(before = InitMilestone.PLUGINS_STARTED)
+		public static void addAliases() {
+			// moved in 3.0 everything in hudson.* is deprecated
+			Items.XSTREAM2.addCompatibilityAlias("hudson.queueSorter.PrioritySorterJobColumn", PrioritySorterJobColumn.class);
+		}
+	}
 }

@@ -2,7 +2,7 @@ package jenkins.advancedqueue.sorter;
 
 public interface SorterStrategyCallback {
 
-    int getPriority();
+	int getPriority();
 
-    SorterStrategyCallback setWeightSelection(float weight);
+	SorterStrategyCallback setWeightSelection(float weight);
 }

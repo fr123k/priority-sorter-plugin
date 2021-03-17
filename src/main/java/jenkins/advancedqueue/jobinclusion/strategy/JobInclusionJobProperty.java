@@ -37,45 +37,45 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class JobInclusionJobProperty extends JobProperty<Job<?, ?>> {
 
-    private boolean useJobGroup;
+	private boolean useJobGroup;
 
-    private String jobGroupName;
+	private String jobGroupName;
 
-    @DataBoundConstructor
-    public JobInclusionJobProperty(Boolean useJobGroup, String jobGroupName) {
-        this.useJobGroup = useJobGroup;
-        this.jobGroupName = jobGroupName;
-    }
+	@DataBoundConstructor
+	public JobInclusionJobProperty(Boolean useJobGroup, String jobGroupName) {
+		this.useJobGroup = useJobGroup;
+		this.jobGroupName = jobGroupName;
+	}
 
-    public String getJobGroupName() {
-        return jobGroupName;
-    }
+	public String getJobGroupName() {
+		return jobGroupName;
+	}
 
-    public boolean isUseJobGroup() {
-        return useJobGroup;
-    }
+	public boolean isUseJobGroup() {
+		return useJobGroup;
+	}
 
 
-    @Override
-    public DescriptorImpl getDescriptor() {
-        return (DescriptorImpl) super.getDescriptor();
-    }
+	@Override
+	public DescriptorImpl getDescriptor() {
+		return (DescriptorImpl) super.getDescriptor();
+	}
 
-    @Extension
-    public static final class DescriptorImpl extends JobPropertyDescriptor {
+	@Extension
+	public static final class DescriptorImpl extends JobPropertyDescriptor {
 
-        @Override
-        public String getDisplayName() {
-            return "XXX";
-        }
+		@Override
+		public String getDisplayName() {
+			return "XXX";
+		}
 
-        public ListBoxModel getJobGroups() {
-            return PropertyBasedJobInclusionStrategy.getPropertyBasesJobGroups();
-        }
+		public ListBoxModel getJobGroups() {
+			return PropertyBasedJobInclusionStrategy.getPropertyBasesJobGroups();
+		}
 
-        public boolean isUsed() {
-            return PropertyBasedJobInclusionStrategy.getPropertyBasesJobGroups().size() > 0;
-        }
-    }
+		public boolean isUsed() {
+			return PropertyBasedJobInclusionStrategy.getPropertyBasesJobGroups().size() > 0;
+		}
+	}
 
 }

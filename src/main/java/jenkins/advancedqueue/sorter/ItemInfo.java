@@ -43,151 +43,151 @@ import jenkins.advancedqueue.priority.PriorityStrategy;
  */
 public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, SorterStrategyCallback, Comparable<ItemInfo> {
 
-    private long itemId;
+	private long itemId;
 
-    private long inQueueSince;
+	private long inQueueSince;
 
-    private Long sortAsInQueueSince = null;
+	private Long sortAsInQueueSince = null;
 
-    private int jobGroupId;
+	private int jobGroupId;
 
-    private PriorityStrategy priorityStrategy;
+	private PriorityStrategy priorityStrategy;
 
-    private String jobName;
+	private String jobName;
 
-    private float weight;
+	private float weight;
 
-    private int priority;
+	private int priority;
 
-    private ItemStatus itemStatus;
+	private ItemStatus itemStatus;
 
-    private List<String> decisionLog = new ArrayList<String>(10);
+	private List<String> decisionLog = new ArrayList<String>(10);
 
-    ItemInfo(Item item) {
-        this.itemId = item.getId();
-        this.inQueueSince = item.getInQueueSince();
-        this.jobName = item.task.getName();
-        this.itemStatus = ItemStatus.WAITING;
-    }
+	ItemInfo(Item item) {
+		this.itemId = item.getId();
+		this.inQueueSince = item.getInQueueSince();
+		this.jobName = item.task.getName();
+		this.itemStatus = ItemStatus.WAITING;
+	}
 
-    public PriorityConfigurationCallback setPrioritySelection(int priority, int jobGroupId, PriorityStrategy reason) {
-        this.priority = priority;
-        this.jobGroupId = jobGroupId;
-        this.priorityStrategy = reason;
-        return this;
-    }
+	public PriorityConfigurationCallback setPrioritySelection(int priority, int jobGroupId, PriorityStrategy reason) {
+		this.priority = priority;
+		this.jobGroupId = jobGroupId;
+		this.priorityStrategy = reason;
+		return this;
+	}
 
-    public PriorityConfigurationCallback setPrioritySelection(int priority, long sortAsInQueueSince, int jobGroupId, PriorityStrategy reason) {
-        this.priority = priority;
-        this.sortAsInQueueSince = sortAsInQueueSince;
-        this.jobGroupId = jobGroupId;
-        this.priorityStrategy = reason;
-        return this;
-    }
+	public PriorityConfigurationCallback setPrioritySelection(int priority, long sortAsInQueueSince, int jobGroupId, PriorityStrategy reason) {
+		this.priority = priority;
+		this.sortAsInQueueSince = sortAsInQueueSince;
+		this.jobGroupId = jobGroupId;
+		this.priorityStrategy = reason;
+		return this;
+	}
 
-    public PriorityConfigurationCallback addDecisionLog(int indent, String log) {
-        this.decisionLog.add(String.format("%"+ ((indent + 1) * 2) + "s%s", "", log));
-        return this;
-    }
+	public PriorityConfigurationCallback addDecisionLog(int indent, String log) {
+		this.decisionLog.add(String.format("%"+ ((indent + 1) * 2) + "s%s", "", log));
+		return this;
+	}
 
-    public PriorityConfigurationCallback setPrioritySelection(int priority) {
-        setPrioritySelection(priority, -1, null);
-        return this;
-    }
+	public PriorityConfigurationCallback setPrioritySelection(int priority) {
+		setPrioritySelection(priority, -1, null);
+		return this;
+	}
 
-    public SorterStrategyCallback setWeightSelection(float weight) {
-        this.weight = weight;
-        return this;
-    }
+	public SorterStrategyCallback setWeightSelection(float weight) {
+		this.weight = weight;
+		return this;
+	}
 
-    public void setBuildable() {
-        itemStatus = ItemStatus.BUILDABLE;
-        logBuilableItem(this);
-    }
+	public void setBuildable() {
+		itemStatus = ItemStatus.BUILDABLE;
+		logBuilableItem(this);
+	}
 
-    public void setBlocked() {
-        itemStatus = ItemStatus.BLOCKED;
-        logBlockedItem(this);
-    }
+	public void setBlocked() {
+		itemStatus = ItemStatus.BLOCKED;
+		logBlockedItem(this);
+	}
 
-    public long getItemId() {
-        return itemId;
-    }
+	public long getItemId() {
+		return itemId;
+	}
 
-    public long getInQueueSince() {
-        return inQueueSince;
-    }
+	public long getInQueueSince() {
+		return inQueueSince;
+	}
 
-    public long getSortableInQueueSince() {
-        if(sortAsInQueueSince != null) {
-            return sortAsInQueueSince;
-        }
-        return inQueueSince;
-    }
+	public long getSortableInQueueSince() {
+		if(sortAsInQueueSince != null) {
+			return sortAsInQueueSince;
+		}
+		return inQueueSince;
+	}
 
-    public int getJobGroupId() {
-        return jobGroupId;
-    }
+	public int getJobGroupId() {
+		return jobGroupId;
+	}
 
-    public PriorityStrategy getPriorityStrategy() {
-        return priorityStrategy;
-    }
+	public PriorityStrategy getPriorityStrategy() {
+		return priorityStrategy;
+	}
 
-    public String getJobName() {
-        return jobName;
-    }
+	public String getJobName() {
+		return jobName;
+	}
 
-    public float getWeight() {
-        return weight;
-    }
+	public float getWeight() {
+		return weight;
+	}
 
-    public int getPriority() {
-        return priority;
-    }
+	public int getPriority() {
+		return priority;
+	}
 
-    public ItemStatus getItemStatus() {
-        return itemStatus;
-    }
+	public ItemStatus getItemStatus() {
+		return itemStatus;
+	}
 
-    public int compareTo(ItemInfo o) {
-        if(this.getWeight() == o.getWeight()) {
-            if(this.getSortableInQueueSince() == o.getSortableInQueueSince()) {
-                return Long.compare(this.getItemId(), o.getItemId());
-            }
-            return Long.compare(this.getSortableInQueueSince(), o.getSortableInQueueSince());
-        }
-        return Float.compare(this.getWeight(), o.getWeight());
-    }
+	public int compareTo(ItemInfo o) {
+		if(this.getWeight() == o.getWeight()) {
+			if(this.getSortableInQueueSince() == o.getSortableInQueueSince()) {
+				return Long.compare(this.getItemId(), o.getItemId());
+			}
+			return Long.compare(this.getSortableInQueueSince(), o.getSortableInQueueSince());
+		}
+		return Float.compare(this.getWeight(), o.getWeight());
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ItemInfo) {
-            ItemInfo itemInfo = (ItemInfo) obj;
-            return compareTo(itemInfo) == 0;
-        }
-        return false;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ItemInfo) {
+			ItemInfo itemInfo = (ItemInfo) obj;
+			return compareTo(itemInfo) == 0;
+		}
+		return false;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(itemId, inQueueSince, sortAsInQueueSince, jobGroupId, priorityStrategy, jobName, weight, priority, itemStatus, decisionLog);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(itemId, inQueueSince, sortAsInQueueSince, jobGroupId, priorityStrategy, jobName, weight, priority, itemStatus, decisionLog);
+	}
 
-    @Override
-    public String toString() {
-        String reason = "<none>";
-        if(priorityStrategy != null) {
-            reason = priorityStrategy.getDescriptor().getDisplayName();
-        }
-        return String.format("Id: %s, JobName: %s, jobGroupId: %s, reason: %s, priority: %s, weight: %s, status: %s", itemId,
-                jobName, jobGroupId, reason, priority, weight, itemStatus);
-    }
+	@Override
+	public String toString() {
+		String reason = "<none>";
+		if(priorityStrategy != null) {
+			reason = priorityStrategy.getDescriptor().getDisplayName();
+		}
+		return String.format("Id: %s, JobName: %s, jobGroupId: %s, reason: %s, priority: %s, weight: %s, status: %s", itemId,
+				jobName, jobGroupId, reason, priority, weight, itemStatus);
+	}
 
-    public String getDescisionLog() {
-        StringBuffer buffer = new StringBuffer();
-        for (String  log : decisionLog) {
-            buffer.append(log).append("\n");
-        }
-        return buffer.toString();
-    }
+	public String getDescisionLog() {
+		StringBuffer buffer = new StringBuffer();
+		for (String  log : decisionLog) {
+			buffer.append(log).append("\n");
+		}
+		return buffer.toString();
+	}
 }
