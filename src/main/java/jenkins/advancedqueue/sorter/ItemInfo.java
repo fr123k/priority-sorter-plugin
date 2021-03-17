@@ -184,7 +184,7 @@ public class ItemInfo implements PriorityConfigurationCallback, DecisionLogger, 
 	}
 
 	public String getDescisionLog() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (String  log : decisionLog) {
 			buffer.append(log).append("\n");
 		}

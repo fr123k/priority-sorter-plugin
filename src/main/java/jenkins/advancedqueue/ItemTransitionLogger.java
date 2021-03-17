@@ -25,7 +25,6 @@ package jenkins.advancedqueue;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.annotation.Nonnull;
 
 import jenkins.advancedqueue.sorter.ItemInfo;

@@ -115,9 +115,9 @@ public class PrioritySorterRestriction extends JobRestriction {
 			} catch (NumberFormatException e) {
 				// Use default value
 			}
-			ListBoxModel items = PrioritySorterUtil.fillPriorityItems(value, PrioritySorterConfiguration.get()
+			return PrioritySorterUtil.fillPriorityItems(value, PrioritySorterConfiguration.get()
 					.getStrategy().getNumberOfPriorities());
-			return items;
 		}
+
 	}
 }

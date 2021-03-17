@@ -23,6 +23,7 @@
  */
 package jenkins.advancedqueue.sorter.strategy;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.Queue;
 import hudson.model.Queue.LeftItem;
 
@@ -43,7 +44,7 @@ abstract public class FQBaseStrategy extends MultiBucketStrategy {
 	static final Map<Integer, Float> prio2weight = new HashMap<Integer, Float>();
 	static final private float MIN_STARTED_WEIGHT = 1F;
 	// Keeps track on the max weight of started jobs
-	private float maxStartedWeight = MIN_STARTED_WEIGHT;
+	static float maxStartedWeight = MIN_STARTED_WEIGHT;
 
 	public FQBaseStrategy() {
 	}
@@ -53,6 +54,7 @@ abstract public class FQBaseStrategy extends MultiBucketStrategy {
 	}
 
 	@Override
+	@SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
 	public void onStartedItem(LeftItem item, float weight) {
 		maxStartedWeight = Math.max(maxStartedWeight, weight);
 	}
@@ -73,6 +75,7 @@ abstract public class FQBaseStrategy extends MultiBucketStrategy {
 		return Math.max(maxStartedWeight, minWeight);
 	}
 
+	@SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
 	protected float getWeightToUse(int priority, float minimumWeightToAssign) {
 		float weight = minimumWeightToAssign * (1F + getStepSize(priority));
 		// Protect us from values going through the roof if we run for a very

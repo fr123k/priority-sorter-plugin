@@ -27,8 +27,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -50,6 +52,7 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.Plugin;
 import hudson.matrix.MatrixConfiguration;
+import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Job;
 import hudson.model.Queue;
@@ -76,6 +79,7 @@ import net.sf.json.JSONObject;
 public class PriorityConfiguration extends GlobalConfiguration implements RootAction {
 
 	private static final Logger LOGGER = Logger.getLogger(PriorityConfiguration.class.getName());
+	transient private Map<Integer, JobGroup> id2jobGroup;
 	transient private PriorityConfigurationMatrixHelper priorityConfigurationMatrixHelper;
 	transient private PriorityConfigurationPlaceholderTaskHelper placeholderTaskHelper = new PriorityConfigurationPlaceholderTaskHelper();
 	private List<JobGroup> jobGroups = new LinkedList<JobGroup>();
@@ -88,7 +92,17 @@ public class PriorityConfiguration extends GlobalConfiguration implements RootAc
 				return o1.getId() - o2.getId();
 			}
 		});
-
+		//
+		id2jobGroup = new HashMap<Integer, JobGroup>();
+		for (JobGroup jobGroup : jobGroups) {
+			id2jobGroup.put(jobGroup.getId(), jobGroup);
+			Collections.sort(jobGroup.getPriorityStrategies(), new Comparator<JobGroup.PriorityStrategyHolder>() {
+				public int compare(JobGroup.PriorityStrategyHolder o1, JobGroup.PriorityStrategyHolder o2) {
+					return o1.getId() - o2.getId();
+				}
+			});
+		}
+		//
 		Plugin plugin = Jenkins.get().getPlugin("matrix-project");
 		if(plugin == null || !plugin.getWrapper().isEnabled()){
 			LOGGER.log(Level.FINE, "The matrix-project plugin is not installed or enable.");
@@ -245,9 +259,9 @@ public class PriorityConfiguration extends GlobalConfiguration implements RootAc
 		PriorityStrategy reason = null;
 		if (jobGroup.isUsePriorityStrategies()) {
 			priorityCallback.addDecisionLog(2, "Evaluating strategies ...");
-			List<PriorityStrategy> priorityStrategies = jobGroup.getPriorityStrategies();
-			for (PriorityStrategy priorityStrategy : priorityStrategies) {
-				PriorityStrategy strategy = priorityStrategy;
+			List<JobGroup.PriorityStrategyHolder> priorityStrategies = jobGroup.getPriorityStrategies();
+			for (JobGroup.PriorityStrategyHolder priorityStrategy : priorityStrategies) {
+				PriorityStrategy strategy = priorityStrategy.getPriorityStrategy();
 				priorityCallback.addDecisionLog(3, "Evaluating strategy [" + strategy.getDescriptor().getDisplayName() + "] ...");
 				if (strategy.isApplicable(item)) {
 					priorityCallback.addDecisionLog(4, "Strategy is applicable");
@@ -269,14 +283,12 @@ public class PriorityConfiguration extends GlobalConfiguration implements RootAc
 		return priorityCallback.setPrioritySelection(priority, jobGroup.getId(), reason);
 	}
 
-	@DataBoundSetter
-	public void setJobGroups(List<JobGroup> jobGroups) {
-		this.jobGroups = jobGroups;
-		save();
-	}
-
-
 	static public PriorityConfiguration get() {
-		return GlobalConfiguration.all().get(PriorityConfiguration.class);
+		return (PriorityConfiguration) Jenkins.get().getDescriptor(PriorityConfiguration.class);
 	}
+
+
+	// static public PriorityConfiguration get() {
+	// 	return GlobalConfiguration.all().get(PriorityConfiguration.class);
+	// }
 }
