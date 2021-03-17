@@ -52,13 +52,49 @@ import jenkins.advancedqueue.Messages;
 @Extension
 public class PrioritySorterRestriction extends JobRestriction {
 
-	private static final long serialVersionUID = -9006082445139117284L;
-
 	private final static Logger LOGGER = Logger.getLogger(PrioritySorterRestriction.class.getName());
 
-	private int fromPriority, toPriority;
+	@Extension(optional = true)
+	public static class DescriptorImpl extends JobRestrictionDescriptor {
 
-	public PrioritySorterRestriction() {
+		@Override
+		public String getDisplayName() {
+			return Messages.Priority_from_prioritySorter();
+		}
+
+		public ListBoxModel doFillFromPriorityItems() {
+			return PrioritySorterUtil.fillPriorityItems(PrioritySorterConfiguration.get().getStrategy()
+					.getNumberOfPriorities());
+		}
+
+		public ListBoxModel doFillToPriorityItems() {
+			return PrioritySorterUtil.fillPriorityItems(PrioritySorterConfiguration.get().getStrategy()
+					.getNumberOfPriorities());
+		}
+
+		public ListBoxModel doUpdateFromPriorityItems(@QueryParameter("value") String strValue) {
+			int value = 1;
+			try {
+				value = Integer.parseInt(strValue);
+			} catch (NumberFormatException e) {
+				// Use default value
+			}
+			return PrioritySorterUtil.fillPriorityItems(value, PrioritySorterConfiguration.get()
+					.getStrategy().getNumberOfPriorities());
+		}
+
+	}
+
+	private int fromPriority;
+
+	private int toPriority;
+
+	public int getFromPriority() {
+		return fromPriority;
+	}
+
+	public int getToPriority() {
+		return toPriority;
 	}
 
 	@DataBoundConstructor
@@ -82,42 +118,5 @@ public class PrioritySorterRestriction extends JobRestriction {
 	@SuppressWarnings("rawtypes")
 	public boolean canTake(Run run) {
 		return true;
-	}
-
-	public int getFromPriority() {
-		return fromPriority;
-	}
-
-	public int getToPriority() {
-		return toPriority;
-	}
-
-	@Extension(optional = true)
-	public static class DescriptorImpl extends JobRestrictionDescriptor {
-
-		@Override
-		public String getDisplayName() { return Messages.Priority_from_prioritySorter(); }
-
-		public ListBoxModel doFillFromPriorityItems() {
-			return PrioritySorterUtil.fillPriorityItems(PrioritySorterConfiguration.get().getStrategy()
-					.getNumberOfPriorities());
-		}
-
-		public ListBoxModel doFillToPriorityItems() {
-			return PrioritySorterUtil.fillPriorityItems(PrioritySorterConfiguration.get().getStrategy()
-					.getNumberOfPriorities());
-		}
-
-		public ListBoxModel doUpdateFromPriorityItems(@QueryParameter("value") String strValue) {
-			int value = 1;
-			try {
-				value = Integer.parseInt(strValue);
-			} catch (NumberFormatException e) {
-				// Use default value
-			}
-			ListBoxModel items = PrioritySorterUtil.fillPriorityItems(value, PrioritySorterConfiguration.get()
-					.getStrategy().getNumberOfPriorities());
-			return items;
-		}
 	}
 }

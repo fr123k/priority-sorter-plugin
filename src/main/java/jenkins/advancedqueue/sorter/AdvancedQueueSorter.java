@@ -101,7 +101,7 @@ public class AdvancedQueueSorter extends QueueSorter {
 		}
 		//
 		if (items.size() > 0 && LOGGER.isLoggable(Level.FINER)) {
-			StringBuffer queueStr = new StringBuffer("Queue:\n"
+			StringBuilder queueStr = new StringBuilder("Queue:\n"
 					+ "+----------------------------------------------------------------------+\n"
 					+ "|   Item Id  |		Job Name	   | Priority |		Weight		|\n"
 					+ "+----------------------------------------------------------------------+\n");
@@ -112,11 +112,29 @@ public class AdvancedQueueSorter extends QueueSorter {
 					jobName = jobName.substring(0, 9) + "..."
 							+ jobName.substring(jobName.length() - 9, jobName.length());
 				}
-				queueStr.append(String.format("| %10d | %20s | %8d | %20.5f |%n", item.getId(), jobName, itemInfo.getPriority(), itemInfo.getWeight()));
+				queueStr.append(String.format("| %10d | %20s | %8d | %20.5f |%n", item.getId(), jobName,
+						itemInfo.getPriority(), itemInfo.getWeight()));
 
 			}
 			queueStr.append("+----------------------------------------------------------------------+");
 			LOGGER.log(Level.FINER, queueStr.toString());
+		}
+	}
+
+	/**
+	 * Returned the calculated, cached, weight or calculates the weight if missing. Should only be
+	 * called when the value should already be there, if the item is new {@link #onNewItem(Item)} is
+	 * the method to call.
+	 *
+	 * @param item the item to get the weight for
+	 * @return the calculated weight
+	 */
+	private float getCalculatedWeight(BuildableItem item) {
+		try {
+			return QueueItemCache.get().getItem(item.getId()).getWeight();
+		} catch (NullPointerException e) {
+			onNewItem(item);
+			return QueueItemCache.get().getItem(item.getId()).getWeight();
 		}
 	}
 
@@ -131,13 +149,13 @@ public class AdvancedQueueSorter extends QueueSorter {
 
 	public void onLeft(@Nonnull LeftItem li) {
 		ItemInfo itemInfo = QueueItemCache.get().removeItem(li.getId());
-				if (itemInfo == null) {
-					LOGGER.log(Level.WARNING, "Received the onLeft() notification for the item from outside the QueueItemCache: {0}. " +
-							"Cannot process this item, Priority Sorter Strategy will not be invoked", li);
-					return;
-				}
-				
-				final SorterStrategy prioritySorterStrategy = PrioritySorterConfiguration.get().getStrategy();
+                if (itemInfo == null) {
+                    LOGGER.log(Level.WARNING, "Received the onLeft() notification for the item from outside the QueueItemCache: {0}. " +
+                            "Cannot process this item, Priority Sorter Strategy will not be invoked", li);
+                    return;
+                }
+                
+                final SorterStrategy prioritySorterStrategy = PrioritySorterConfiguration.get().getStrategy();
 		if (li.isCancelled()) {
 			prioritySorterStrategy.onCanceledItem(li);
 			logCanceledItem(itemInfo);

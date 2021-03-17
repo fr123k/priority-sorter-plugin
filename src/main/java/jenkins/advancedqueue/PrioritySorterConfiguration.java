@@ -23,6 +23,13 @@
  */
 package jenkins.advancedqueue;
 
+import hudson.Extension;
+import hudson.model.Job;
+import hudson.security.ACL;
+import hudson.security.ACLContext;
+import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -38,6 +45,8 @@ import hudson.model.Job;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+
+import jenkins.advancedqueue.JobGroup.PriorityStrategyHolder;
 import jenkins.advancedqueue.priority.PriorityStrategy;
 import jenkins.advancedqueue.priority.strategy.PriorityJobProperty;
 import jenkins.advancedqueue.sorter.SorterStrategy;
@@ -111,8 +120,7 @@ public class PrioritySorterConfiguration extends GlobalConfiguration {
 	private void updatePriorities(int prevNumberOfPriorities) {
 		// Shouldn't really by a permission problem when getting here but
 		// to be on the safe side
-		SecurityContext saveCtx = ACL.impersonate(ACL.SYSTEM);
-		try {
+		try(ACLContext saveCtx = ACL.as(ACL.SYSTEM)) {
 			@SuppressWarnings("rawtypes")
 			List<Job> allJobs = Jenkins.get().getAllItems(Job.class);
 			for (Job<?, ?> job : allJobs) {
@@ -139,36 +147,17 @@ public class PrioritySorterConfiguration extends GlobalConfiguration {
 			for (JobGroup jobGroup : jobGroups) {
 				jobGroup.setPriority(PriorityCalculationsUtil.scale(prevNumberOfPriorities,
 						strategy.getNumberOfPriorities(), jobGroup.getPriority()));
-				List<PriorityStrategy> priorityStrategies = jobGroup.getPriorityStrategies();
-				for (PriorityStrategy priorityStrategyHolder : priorityStrategies) {
-					priorityStrategyHolder.numberPrioritiesUpdates(prevNumberOfPriorities,
+				List<PriorityStrategyHolder> priorityStrategies = jobGroup.getPriorityStrategies();
+				for (PriorityStrategyHolder priorityStrategyHolder : priorityStrategies) {
+					priorityStrategyHolder.getPriorityStrategy().numberPrioritiesUpdates(prevNumberOfPriorities,
 							strategy.getNumberOfPriorities());
 				}
 			}
 			PriorityConfiguration.get().save();
-		} finally {
-			SecurityContextHolder.setContext(saveCtx);
 		}
 	}
 
-	public boolean isOnlyAdminsMayEditPriorityConfiguration() {
-		return this.onlyAdminsMayEditPriorityConfiguration;
-	}
-
-	@DataBoundSetter
-	public void setOnlyAdminsMayEditPriorityConfiguration(boolean onlyAdminsMayEditPriorityConfiguration) {
-		this.onlyAdminsMayEditPriorityConfiguration = onlyAdminsMayEditPriorityConfiguration;
-		save();
-	}
-
-	@DataBoundSetter
-	public void setStrategy(SorterStrategy strategy) {
-		updatePriorities(strategy.getNumberOfPriorities());
-		this.strategy = strategy;
-		save();
-	}
-
-	public static PrioritySorterConfiguration get() {
-		return GlobalConfiguration.all().get(PrioritySorterConfiguration.class);
+	static public PrioritySorterConfiguration get() {
+		return (PrioritySorterConfiguration) Jenkins.get().getDescriptor(PrioritySorterConfiguration.class);
 	}
 }

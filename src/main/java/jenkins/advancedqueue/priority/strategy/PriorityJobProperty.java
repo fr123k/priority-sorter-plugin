@@ -38,6 +38,7 @@ import hudson.model.JobPropertyDescriptor;
 import hudson.model.Descriptor.FormException;
 import hudson.util.ListBoxModel;
 import jenkins.advancedqueue.JobGroup;
+import jenkins.advancedqueue.JobGroup.PriorityStrategyHolder;
 import jenkins.advancedqueue.Messages;
 import jenkins.advancedqueue.PriorityConfiguration;
 import jenkins.advancedqueue.PriorityConfigurationCallback;
@@ -119,9 +120,9 @@ public class PriorityJobProperty extends JobProperty<Job<?, ?>> {
 			PriorityConfiguration configuration = PriorityConfiguration.get();
 			JobGroup jobGroup = configuration.getJobGroup(dummyCallback, owner);
 			if(jobGroup != null && jobGroup.isUsePriorityStrategies()) {
-				List<PriorityStrategy> priorityStrategies = jobGroup.getPriorityStrategies();
-				for (PriorityStrategy priorityStrategy : priorityStrategies) {
-					if(priorityStrategy instanceof JobPropertyStrategy) {
+				List<PriorityStrategyHolder> priorityStrategies = jobGroup.getPriorityStrategies();
+				for (PriorityStrategyHolder priorityStrategyHolder : priorityStrategies) {
+					if(priorityStrategyHolder.getPriorityStrategy() instanceof JobPropertyStrategy) {
 						return true;
 					}
 				}

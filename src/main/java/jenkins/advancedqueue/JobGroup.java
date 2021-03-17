@@ -51,7 +51,7 @@ import net.sf.json.JSONObject;
  */
 public class JobGroup {
 
-	public static class PriorityStrategyHolder extends PriorityStrategy {
+	public static class PriorityStrategyHolder {
 		private int id = 0;
 		private PriorityStrategy priorityStrategy;
 
@@ -80,25 +80,6 @@ public class JobGroup {
 			this.priorityStrategy = priorityStrategy;
 		}
 
-		@Override
-		public Descriptor<PriorityStrategy> getDescriptor() {
-			return priorityStrategy.getDescriptor();
-		}
-
-		@Override
-		public boolean isApplicable(Item item) {
-			return priorityStrategy.isApplicable(item);
-		}
-
-		@Override
-		public int getPriority(Item item) {
-			return priorityStrategy.getPriority(item);
-		}
-
-		@Override
-		public void numberPrioritiesUpdates(int oldNumberOfPriorities, int newNumberOfPriorities) {
-			priorityStrategy.numberPrioritiesUpdates(oldNumberOfPriorities, newNumberOfPriorities);
-		}
 	}
 
 	private int id = 0;
@@ -123,11 +104,9 @@ public class JobGroup {
 	@Deprecated
 	private String jobPattern = ".*";
 	private boolean usePriorityStrategies;
-	// private List<JobGroup.PriorityStrategyHolder> priorityStrategies = new ArrayList<JobGroup.PriorityStrategyHolder>();
-	private List<PriorityStrategy> priorityStrategies = new ArrayList<PriorityStrategy>();
+	private List<JobGroup.PriorityStrategyHolder> priorityStrategies = new ArrayList<JobGroup.PriorityStrategyHolder>();
 
-	@DataBoundConstructor
-	public JobGroup() {
+	private JobGroup() {
 	}
 
 	/**
@@ -140,19 +119,17 @@ public class JobGroup {
 	/**
 	 * @param id the id to set
 	 */
-	@DataBoundSetter
 	public void setId(int id) {
 		this.id = id;
 	}
 
-	public @Nonnull String getDescription() {
-		return hudson.Util.fixNull(description);
-	}
+    public @Nonnull String getDescription() {
+        return hudson.Util.fixNull(description);
+    }
 
-	@DataBoundSetter
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
 	/**
 	 * @return the priority
@@ -167,24 +144,23 @@ public class JobGroup {
 	 * @deprecated Used in 2.x now replaced with dynamic {@link JobGroup#jobGroupStrategy}, will return the view
 	 */
 	@Deprecated
-	@CheckForNull
+        @CheckForNull
 	public String getView() {
 		if(jobGroupStrategy instanceof ViewBasedJobInclusionStrategy) {
 			return ((ViewBasedJobInclusionStrategy) jobGroupStrategy).getViewName();
 		}
 		return null;
 	}
-
+	
 	/**
 	 * @param priority the priority to set
 	 */
-	@DataBoundSetter
 	public void setPriority(int priority) {
 		this.priority = priority;
 	}
-
+		
 	public JobInclusionStrategy getJobGroupStrategy() {
-		// Convert from 2.x
+		// Convert from 2.x 
 		if(jobGroupStrategy == null && view != null) {
 			ViewBasedJobInclusionStrategy.JobPattern pattern = new ViewBasedJobInclusionStrategy.JobPattern(jobPattern);
 			jobGroupStrategy = new ViewBasedJobInclusionStrategy(view, useJobFilter == false ? null : pattern);
@@ -192,7 +168,6 @@ public class JobGroup {
 		return jobGroupStrategy;
 	}
 
-	@DataBoundSetter
 	public void setJobGroupStrategy(JobInclusionStrategy jobGroupStrategy) {
 		this.view = null;
 		this.jobGroupStrategy = jobGroupStrategy;
@@ -202,7 +177,6 @@ public class JobGroup {
 		return runExclusive;
 	}
 
-	@DataBoundSetter
 	public void setRunExclusive(boolean runExclusive) {
 		this.runExclusive = runExclusive;
 	}
@@ -211,29 +185,16 @@ public class JobGroup {
 		return usePriorityStrategies;
 	}
 
-	@DataBoundSetter
 	public void setUsePriorityStrategies(boolean usePriorityStrategies) {
 		this.usePriorityStrategies = usePriorityStrategies;
 	}
 
-	public List<PriorityStrategy> getPriorityStrategies() {
+	public List<JobGroup.PriorityStrategyHolder> getPriorityStrategies() {
 		return priorityStrategies;
 	}
 
-	@DataBoundSetter
-	public void setPriorityStrategies(List<? extends PriorityStrategy> priorityStrategies) {
-		if (priorityStrategies.get(0) instanceof PriorityStrategyHolder) {
-			this.priorityStrategies = convertPriorityStrategyHolder((List<PriorityStrategyHolder>)priorityStrategies);
-		} else {
-			this.priorityStrategies = (List<PriorityStrategy>) priorityStrategies;
-		}
-	}
-
-	public List<PriorityStrategy> convertPriorityStrategyHolder(List<PriorityStrategyHolder> priorityStrategyHolders) {
-		List<PriorityStrategy> B = priorityStrategyHolders.stream()
-		.map(holder -> holder.priorityStrategy)
-		.collect(Collectors.toList());
-		return B;
+	public void setPriorityStrategies(List<JobGroup.PriorityStrategyHolder> priorityStrategies) {
+		this.priorityStrategies = priorityStrategies;
 	}
 
 	/**
@@ -270,11 +231,15 @@ public class JobGroup {
 		jobGroup.setUsePriorityStrategies(jobGroupObject.has("usePriorityStrategies"));
 		if (jobGroup.isUsePriorityStrategies()) {
 			JSONObject jsonObject = jobGroupObject.getJSONObject("usePriorityStrategies");
-			if (jsonObject.has("priorityStrategy")) {
-				JSONArray jsonArray = JSONArray.fromObject(jsonObject.get("priorityStrategy"));
+			if (jsonObject.has("holder")) {
+				JSONArray jsonArray = JSONArray.fromObject(jsonObject.get("holder"));
+				int psid = 0;
 				for (Object object : jsonArray) {
+					PriorityStrategyHolder holder = new JobGroup.PriorityStrategyHolder();
+					holder.setId(psid++);
 					PriorityStrategy strategy = req.bindJSON(Class.class, PriorityStrategy.class, object);
-					jobGroup.priorityStrategies.add(strategy);
+					holder.setPriorityStrategy(strategy);
+					jobGroup.priorityStrategies.add(holder);
 				}
 			}
 			if (jobGroup.priorityStrategies.isEmpty()) {

@@ -48,9 +48,9 @@ public abstract class SorterStrategy implements ExtensionPoint, Describable<Sort
 
 	/**
 	 * Called when a new {@link hudson.model.Item} enters the queue.
-	 *
-	 * @param item the {@link hudson.model.WaitingItem} or {@link hudson.model.BuildableItem} that
-	 *			enters the queue
+	 * 
+	 * @param item the {@link hudson.model.Queue.WaitingItem} or {@link hudson.model.BuildableItem} that
+	 *            enters the queue
 	 * @param weightCallback the callback holds the priority to use anded the called method must set
 	 *			the weight before returning
 	 * @return the {@link SorterStrategyCallback} provided to the call must be returned
@@ -59,8 +59,8 @@ public abstract class SorterStrategy implements ExtensionPoint, Describable<Sort
 
 	/**
 	 * Called when a {@link hudson.model.Item} leaves the queue and it is started.
-	 *
-	 * @param item the {@link hudson.model.LeftItem}
+	 * 
+	 * @param item the {@link hudson.model.Queue.LeftItem}
 	 * @param weight the weight assigned when the item entered the queue
 	 */
 	public void onStartedItem(@Nonnull LeftItem item, float weight) {
@@ -74,15 +74,13 @@ public abstract class SorterStrategy implements ExtensionPoint, Describable<Sort
 
 	/**
 	 * Gets number of priority buckets to be used.
-	 *
-	 * @return
+	 * 
 	 */
 	public abstract int getNumberOfPriorities();
 
 	/**
 	 * Gets a default priority bucket to be used.
-	 *
-	 * @return
+	 * 
 	 */
 	public abstract int getDefaultPriority();
 
